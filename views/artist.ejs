@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= artist.artist_name %></title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+    <!-- Include the navbar partial -->
+    <%- include('partials/navbar.ejs') %>
+
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl font-bold my-8"><%= artist.artist_name %></h1>
+
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 mx-auto">
+            <% records.forEach(record => { %>
+            <a href="/record/<%= record.record_id %>" class="record relative group w-full lg:w-1/2 xl:w-1/2">
+                <img src="<%= record.record_artwork %>" alt="<%= record.record_name %>" class="w-full h-auto object-cover transition duration-300 group-hover:blur group-hover:opacity-50">
+
+                <div class="record-info absolute inset-0 flex flex-col justify-center items-center w-full h-full text-white p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block">
+                    <p class="font-bold text-xl"><%= record.record_name %></p>
+                    <p><%= record.release_date %></p>
+                </div>
+                <div class="record-info-small text-left md:hidden">
+                    <p class="font-bold text-xl"><%= record.record_name %></p>
+                    <p><%= record.release_date %></p>
+                </div>
+            </a>
+            <% }) %>
+        </div>
+    </div>
+</body>
+</html>

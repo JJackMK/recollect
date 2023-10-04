@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="collection-title">Collection</title>
+    <link rel="stylesheet" href="/styles/style.css" />
+  </head>
+  <body>
+    <!-- Include the nav_bar partial -->
+    <%- include('partials/navbar.ejs') %>
+  
+    <section class="py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 id="collection-name" class="text-center text-4xl sm:text-5xl font-bold mb-8">
+          Collection Name
+        </h1>
+        <h3 id="collection-username" class="text-center text-xl sm:text-2xl mb-8">
+          Collection by User
+        </h3>
+        <div id="collection-records" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <!-- Records will be populated here -->
+        </div>
+      </div>
+    </section>
+  </body>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const collectionId = window.location.pathname.split("/")[2];
+      fetchCollection(collectionId);
+    });
+  
+    async function fetchCollection(collectionId) {
+  try {
+    const response = await fetch(`/api/collection/${collectionId}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const collection = await response.json();
+    renderCollection(collection);
+  } catch (err) {
+    console.error("Error fetching collection:", err);
+  }
+}
+
+  function renderCollection(collection) {
+    document.getElementById("collection-title").textContent = `${collection.collection_name} - ${collection.username}`;
+    document.getElementById("collection-name").textContent = collection.collection_name;
+    document.getElementById("collection-username").textContent = `Collection by ${collection.username}`;
+
+    const recordsContainer = document.getElementById("collection-records");
+
+collection.records.forEach((record) => {
+  const recordHTML = `
+    <a href="/record/${record.record_id}">
+      <div class="group relative">
+        <img class="w-full h-auto object-cover object-center transition duration-300 group-hover:blur-md" src="${record.artwork}" alt="Album artwork">
+        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+          <div class="bg-gray-900 bg-opacity-60 text-white p-4 rounded">
+            <p class="text-center font-bold">${record.record_name}</p>
+            <p class="text-center">${record.artist_name}</p>
+          </div>
+        </div>
+      </div>
+    </a>
+  `;
+  recordsContainer.insertAdjacentHTML("beforeend", recordHTML);
+});
+  }
+</script>
+</html>

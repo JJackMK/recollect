@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body class="bg-gray-100">
+  <%- include('partials/navbar') %>
+
+  <div class="container mx-auto mt-10">
+    <h1 class="text-3xl font-bold mb-5">Explore</h1>
+
+    <div class="flex justify-between items-center">
+      <input type="text" id="search" placeholder="Search..." class="w-full md:w-1/2 p-2 border border-gray-300 rounded-md" oninput="handleSearch()">
+      <button id="filterButton" class="bg-blue-500 text-white px-4 py-2 rounded-md ml-2">Filter Genres</button>
+    </div>
+
+    <div id="genreFilters" class="hidden flex flex-wrap gap-2 mt-3">
+        <% genres.forEach(genre => { %>
+          <button class="bg-gray-200 py-1 px-2 rounded-md text-sm genre-button" data-genre="<%= genre.genre_name %>" onclick="handleGenreFilter(this)">
+            <%= genre.genre_name %>
+          </button>
+        <% }) %>
+      </div>
+      
+
+    <div id="searchResults" class="mt-5">
+      <!-- The search results will be displayed here dynamically -->
+    </div>
+  </div>
+
+  <script>
+        let selectedGenre = null;
+
+    async function handleSearch() {
+    const query = document.getElementById("search").value;
+    const [collections, records, tracks] = await Promise.all([
+        fetchSearchResults("collections", query, selectedGenre),
+        fetchSearchResults("records", query, selectedGenre),
+        fetchSearchResults("tracks", query, selectedGenre),
+    ]);
+
+    /*
+    console.log("Collections:", collections);
+    console.log("Records:", records);
+    console.log("Tracks:", tracks);
+    */
+   
+    displaySearchResults(collections, records, tracks);
+    }
+
+function handleGenreFilter(button) {
+  const genre = button.dataset.genre;
+  button.classList.toggle("bg-blue-500");
+  button.classList.toggle("text-white");
+
+  if (selectedGenre === genre) {
+    selectedGenre = null;
+  } else {
+    selectedGenre = genre;
+  }
+  handleSearch();
+}
+
+async function fetchSearchResults(type, query, genre) {
+    const url = `/api/search/${type}?query=${encodeURIComponent(query)}&genre=${encodeURIComponent(genre || "")}`;
+    const response = await fetch(url);
+    return response.json();
+    }
+
+function displaySearchResults(collections, records, tracks) {
+    const searchResults = document.getElementById("searchResults");
+    searchResults.innerHTML = `
+        <div>
+        <h2 class="text-xl font-bold mb-3">Collections</h2>
+        ${renderCollections(collections)}
+        </div>
+        <div>
+        <h2 class="text-xl font-bold mb-3">Records</h2>
+        ${renderRecords(records)}
+        </div>
+        <div>
+        <h2 class="text-xl font-bold mb-3">Tracks</h2>
+        ${renderTracks(tracks)}
+        </div>
+    `;
+    }
+
+function renderCollections(collections) {
+  return collections.map(collection => `
+    <div>
+      <h3>${collection.collection_name}</h3>
+      <p>${collection.username}</p>
+    </div>
+  `).join('');
+}
+
+function renderRecords(records) {
+  return records.map(record => `
+    <div>
+      <h3>${record.record_name}</h3>
+      <p>${record.record_label}</p>
+      <p>${record.release_date}</p>
+      <img src="${record.record_artwork}" alt="${record.record_name} artwork">
+    </div>
+  `).join('');
+}
+
+function renderTracks(tracks) {
+  return tracks.map(track => `
+    <div>
+      <h3>${track.track_name}</h3>
+      <p>${track.record_name}</p>
+    </div>
+  `).join('');
+}
+
+document.getElementById("filterButton").addEventListener("click", () => {
+  document.getElementById("genreFilters").classList.toggle("hidden");
+});
+
+
+  </script>
+</body>
+</html>

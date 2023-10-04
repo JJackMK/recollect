@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= record.record_name %></title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body class="bg-gray-100">
+    <%- include('partials/navbar') %>
+
+    <div class="container mx-auto mt-10">
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="text-3xl font-bold mb-1"><%= record.record_name %> (<%= record.release_date %>)</h1>
+            <h2 class="text-xl mb-5">by <a href="/artist/<%= artist.artist_id %>" class="text-blue-600 hover:text-blue-800"><%= artist.artist_name %></a></h2>
+          </div>
+          <div>
+            <img src="<%= record.record_artwork %>" alt="<%= record.record_name %> artwork" class="w-64 h-64 object-cover">
+          </div>
+        </div>      
+
+      <div class="mt-10">
+        <h2 class="text-2xl font-bold mb-5">Tracklist</h2>
+        <ul>
+          <% tracks.forEach((track, index) => { %>
+            <li class="bg-white rounded-md p-4 mb-2">
+              <div class="flex justify-between items-center">
+                <span class="text-gray-500 mr-4"><%= index + 1 %>.</span>
+                <span><%= track.track_name %></span>
+                <span class="text-gray-500 ml-4"><%= track.track_duration %></span>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+    </div>
+</body>
+</html>

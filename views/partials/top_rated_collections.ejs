@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Top 3 Rated Collections</title>
+    <link rel="stylesheet" href="/styles/style.css" />
+  </head>
+  <section class="py-12">
+    <h2 class="text-center text-3xl sm:text-4xl font-bold mb-8">
+      Top Rated Collections
+    </h2>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="top-collections">
+      </div>
+    </div>
+  </section>
+</html>
+
+<!-- Add script tag at the bottom of top_rated_collections.ejs file -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    fetchTopCollections();
+  });
+
+  async function fetchTopCollections() {
+    try {
+      const response = await fetch("/api/top-collections");
+      const topCollections = await response.json();
+      renderTopCollections(topCollections);
+    } catch (err) {
+      console.error("Error fetching top collections:", err);
+    }
+  }
+
+  function renderTopCollections(topCollections) {
+    const container = document.getElementById("top-collections");
+
+    topCollections.forEach((collection) => {
+      const collectionHTML = `
+        <a href="/collection/${collection.collection_id}" class="block">
+          <div class="group relative">
+            ${getArtworksHTML(collection.record_artworks)}
+            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity duration-200">
+              <div class="flex justify-end pt-2 pr-2">
+                <span class="text-white text-sm group-hover:visible invisible">${collection.positive_votes}</span>
+                <i class="fa fa-heart text-white ml-2"></i>
+              </div>
+              <div class="absolute bottom-0 left-0 w-full py-2">
+                <p class="text-white text-left pl-3 font-bold">${collection.collection_name}</p>
+                <p class="text-white text-left pl-3">${collection.username}</p>
+              </div>
+            </div>
+          </div>
+        </a>
+      `;
+      container.insertAdjacentHTML("beforeend", collectionHTML);
+    });
+  }
+
+  function getArtworksHTML(recordArtworks) {
+    const artworks = recordArtworks.split(",").slice(0, 9);
+    let html = "";
+
+    artworks.forEach((artwork) => {
+      html += `<img class="w-full h-auto object-cover object-center" src="${artwork}" alt="Album artwork">`;
+    });
+
+    for (let i = artworks.length; i < 9; i++) {
+      html += `<img class="w-full h-auto object-cover object-center" src="/images/placeholder_record.jpeg" alt="Placeholder artwork">`;
+    }
+
+    return `<div class="grid grid-cols-3 gap-1">${html}</div>`;
+  }
+</script>
